@@ -9,5 +9,5 @@ func main() {
 	fmt.Println("Api para Metodos de investigacion operativa iniciada!")
 	r := router.SetRouter()
 
-	r.Run("localhost:80")
+	r.Run("localhost:7000")
 }
