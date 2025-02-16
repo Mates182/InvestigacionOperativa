@@ -158,7 +158,10 @@ func (s *Services) DosFases(r requests.ProgramacionLinealRequest) (int, response
 	var modelo []string
 	modelo = append(modelo, modeloFuncionObjetivo)
 	modelo = append(modelo, modeloRestricciones)
-	return 0, responses.DosFasesResponse{Message: "Solución óptima encontrada", Resolucion: responses.DosFasesResolucion{ResolucionFase1: resolucionFase1, ResolucionFase2: resolucionFase2}, Metodo: "dos fases", Modelo: modelo}
+
+	respuestas := utils.Resultados(resolucionFase2[len(resolucionFase2)-1], restriccionesLen)
+
+	return 0, responses.DosFasesResponse{Message: "Solución óptima encontrada", Resolucion: responses.DosFasesResolucion{ResolucionFase1: resolucionFase1, ResolucionFase2: resolucionFase2}, Metodo: "dos fases", Modelo: modelo, Respuestas: respuestas}
 }
 
 func (s *Services) Simplex(r requests.ProgramacionLinealRequest) (int, responses.SimplexResponse) {
@@ -203,6 +206,7 @@ func (s *Services) Simplex(r requests.ProgramacionLinealRequest) (int, responses
 	var modelo []string
 	modelo = append(modelo, modeloFuncionObjetivo)
 	modelo = append(modelo, modeloRestricciones)
+	respuestas := utils.Resultados(resolucion[len(resolucion)-1], numRestricciones)
 	// Retornar la solución óptima
-	return 0, responses.SimplexResponse{Message: "Solución óptima encontrada", Resolucion: resolucion, Metodo: "simplex", Modelo: modelo}
+	return 0, responses.SimplexResponse{Message: "Solución óptima encontrada", Resolucion: resolucion, Metodo: "simplex", Modelo: modelo, Respuestas: respuestas}
 }

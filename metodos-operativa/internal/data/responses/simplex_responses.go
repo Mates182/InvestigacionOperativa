@@ -9,7 +9,7 @@ type SimplexResponse struct {
 	Message    string                `json:"message"`
 	Metodo     string                `json:"metodo"`
 	Modelo     []string              `json:"modelo"`
-	Algebraico []string              `json:"algebraico"`
+	Respuestas string                `json:"respuestas"`
 }
 
 type DosFasesResponse struct {
@@ -17,7 +17,7 @@ type DosFasesResponse struct {
 	Message    string             `json:"message"`
 	Metodo     string             `json:"metodo"`
 	Modelo     []string           `json:"modelo"`
-	Algebraico []string           `json:"algebraico"`
+	Respuestas string             `json:"respuestas"`
 }
 
 type DosFasesResolucion struct {

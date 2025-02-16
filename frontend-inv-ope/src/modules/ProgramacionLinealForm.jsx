@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Simplex from "@/modules/Simplex";
 import DosFases from "@/modules/DosFases";
+import ReactMarkdown from "react-markdown";
 
 function ProgramacionLinealForm() {
   const [numVariables, setNumVariables] = useState(2);
@@ -10,6 +11,7 @@ function ProgramacionLinealForm() {
   const [resultado, setResultado] = useState({});
   const [metodo, setMetodo] = useState("");
   const [modelo, setModelo] = useState([]);
+  const [analisis, setAnalisis] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,10 +54,28 @@ function ProgramacionLinealForm() {
       });
 
       if (!response.ok) throw new Error("Error al procesar la solicitud");
-      const { resolucion, metodo, modelo } = await response.json();
+      
+      const { resolucion, metodo, modelo, respuestas } = await response.json();
+
       setResultado(resolucion);
       setMetodo(metodo);
       setModelo(modelo);
+      const prompt = {
+        content: `Enunciado: ${document.getElementById("content").value}
+        Funcion Objetivo: ${modelo[0]}
+        Restricciones: ${modelo[1]}
+        Respuestas: ${respuestas}`,
+      };
+      const responseGemini = await fetch("http://localhost:7000/analisispl", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(prompt),
+      });
+      if (!responseGemini.ok) throw new Error("Error al procesar la solicitud");
+      const { Message } = await responseGemini.json();
+      setAnalisis(Message);
     } catch (error) {
       console.error("Error al enviar los datos:", error);
       alert("Hubo un error al enviar los datos");
@@ -66,10 +86,11 @@ function ProgramacionLinealForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="row g-3 card border-dark mb-3 ms-0 me-0">
-        <div className="card-header mt-0">
-          Planteamiento del problema
-        </div>
+      <form
+        onSubmit={handleSubmit}
+        className="row g-3 card border-dark mb-3 ms-0 me-0"
+      >
+        <div className="card-header mt-0">Planteamiento del problema</div>
         {/* Input para modificar el número de variables */}
         <div className="row gy-2 gx-3 align-items-center">
           <div className="col-auto">
@@ -79,6 +100,7 @@ function ProgramacionLinealForm() {
               </label>
               <input
                 type="number"
+                step="any"
                 className="form-control"
                 id="numVariables"
                 value={numVariables}
@@ -97,6 +119,7 @@ function ProgramacionLinealForm() {
               </label>
               <input
                 type="number"
+                step="any"
                 className="form-control"
                 id="numRestricciones"
                 value={numRestricciones}
@@ -132,6 +155,7 @@ function ProgramacionLinealForm() {
                 <input
                   className="form-control"
                   type="number"
+                  step="any"
                   id={`fo-coef-${i}`}
                   placeholder="Coeficiente"
                   required
@@ -161,6 +185,7 @@ function ProgramacionLinealForm() {
                   <div className="input-group ">
                     <input
                       type="number"
+                      step="any"
                       className="form-control"
                       id={`rest-${i}-coef-${j}`}
                       placeholder="Coeficiente"
@@ -173,7 +198,11 @@ function ProgramacionLinealForm() {
               ))}
               <div className="col-auto">
                 <div className="input-group ">
-                  <select className="form-select" id={`rest-${i}-operador` } defaultValue="≤">
+                  <select
+                    className="form-select"
+                    id={`rest-${i}-operador`}
+                    defaultValue="≤"
+                  >
                     <option value="≤">≤</option>
                     <option value="=">=</option>
                     <option value="≥">≥</option>
@@ -183,8 +212,9 @@ function ProgramacionLinealForm() {
               <div className="col-auto">
                 <div className="input-group ">
                   <input
-                  className="form-control"
+                    className="form-control"
                     type="number"
+                    step="any"
                     id={`rest-${i}-ld`}
                     placeholder="LD"
                     required
@@ -194,6 +224,18 @@ function ProgramacionLinealForm() {
             </div>
           </div>
         ))}
+
+        <div className="input-group">
+          <span className="input-group-text">
+            Enunciado del <br /> problema:
+          </span>
+          <textarea
+            placeholder="Ingrese el enunciado del problema (opcional)"
+            className="form-control"
+            aria-label="With textarea"
+            id="content"
+          ></textarea>
+        </div>
 
         <button type="submit" disabled={procesando}>
           <h5 className="mt-2">{procesando ? "Procesando..." : "Calcular"}</h5>
@@ -210,7 +252,7 @@ function ProgramacionLinealForm() {
               <p className="card-text">{modelo[1]}</p>
             </div>
           </div>
-          <div className="card border-primary mb-3">
+          {/*<div className="card border-primary mb-3">
             <div className="card-header text-primary">Forma Algebráica</div>
             <div className="card-body">
               <h5 className="card-title text-primary">Función Objetivo</h5>
@@ -218,11 +260,20 @@ function ProgramacionLinealForm() {
               <h5 className="card-title text-primary">Sujeto a:</h5>
               <p className="card-text"></p>
             </div>
-          </div>
+          </div>*/}
         </div>
       )}
       {metodo == "simplex" && <Simplex resoluciones={resultado} />}
       {metodo == "dos fases" && <DosFases resoluciones={resultado} />}
+      {(metodo == "simplex" || metodo == "dos fases") && (
+        <div className="card border-info mb-3">
+          <div className="card-header">Interpretación de Resultados</div>
+          <div className="card-body">
+            <h5 className="card-title">Interpretación generada por Gemini:</h5>
+            <ReactMarkdown className="card-text">{analisis}</ReactMarkdown>
+          </div>
+        </div>
+      )}
     </>
   );
 }

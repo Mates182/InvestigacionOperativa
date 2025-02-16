@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"metodos-operativa/internal/data/models"
 	"metodos-operativa/internal/data/requests"
 )
 
@@ -47,4 +48,22 @@ func ConvertirProgramacionLinealAFormato(req requests.ProgramacionLinealRequest)
 
 	// Retornar la representación en formato texto
 	return fo, fmt.Sprintf("%s%s", restricciones, variables)
+}
+
+func Resultados(sof models.TablaSimplex, numVD int) string {
+	var resultados string
+	for i, ecuacion := range sof.Ecuaciones {
+		resultados += fmt.Sprintf("%s = %f\n", ecuacion.VB, ecuacion.LD)
+		if i == 0 {
+			for j, termino := range ecuacion.LI {
+				if j < numVD {
+					resultados += fmt.Sprintf("Costo reducido %s = %f\n", termino.VD, termino.C)
+				} else {
+					resultados += fmt.Sprintf("y%d = %f\n", j-numVD+1, termino.C)
+				}
+			}
+		}
+	}
+
+	return resultados
 }
