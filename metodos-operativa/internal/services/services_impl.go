@@ -154,8 +154,11 @@ func (s *Services) DosFases(r requests.ProgramacionLinealRequest) (int, response
 
 	// Resolver la segunda fase
 	resolucionFase2 := programacion_lineal.ResolverIterativamente(tablaFase2)
-
-	return 0, responses.DosFasesResponse{Message: "Solución óptima encontrada", Resolucion: responses.DosFasesResolucion{ResolucionFase1: resolucionFase1, ResolucionFase2: resolucionFase2}, Metodo: "dos fases"}
+	modeloFuncionObjetivo, modeloRestricciones := utils.ConvertirProgramacionLinealAFormato(r)
+	var modelo []string
+	modelo = append(modelo, modeloFuncionObjetivo)
+	modelo = append(modelo, modeloRestricciones)
+	return 0, responses.DosFasesResponse{Message: "Solución óptima encontrada", Resolucion: responses.DosFasesResolucion{ResolucionFase1: resolucionFase1, ResolucionFase2: resolucionFase2}, Metodo: "dos fases", Modelo: modelo}
 }
 
 func (s *Services) Simplex(r requests.ProgramacionLinealRequest) (int, responses.SimplexResponse) {
@@ -196,7 +199,10 @@ func (s *Services) Simplex(r requests.ProgramacionLinealRequest) (int, responses
 
 	// Resolver iterativamente usando el método Simplex
 	resolucion := programacion_lineal.ResolverIterativamente(tablaSimplex)
-
+	modeloFuncionObjetivo, modeloRestricciones := utils.ConvertirProgramacionLinealAFormato(r)
+	var modelo []string
+	modelo = append(modelo, modeloFuncionObjetivo)
+	modelo = append(modelo, modeloRestricciones)
 	// Retornar la solución óptima
-	return 0, responses.SimplexResponse{Message: "Solución óptima encontrada", Resolucion: resolucion, Metodo: "simplex"}
+	return 0, responses.SimplexResponse{Message: "Solución óptima encontrada", Resolucion: resolucion, Metodo: "simplex", Modelo: modelo}
 }

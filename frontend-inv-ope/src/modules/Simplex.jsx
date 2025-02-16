@@ -6,7 +6,7 @@ function Simplex({ resoluciones }) {
       {resoluciones.map((resolucion, i) => {
         return (
           <div key={i}>
-            <h3>Iteracion {i}</h3>
+            <h3>Iteración {i}</h3>
             <table className="table">
               <thead className="table-dark">
                 <tr>

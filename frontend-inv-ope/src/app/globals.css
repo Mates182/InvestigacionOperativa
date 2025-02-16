@@ -40,3 +40,7 @@ a {
     color-scheme: dark;
   }
 }
+
+.card-text {
+  white-space: pre-line;
+}
