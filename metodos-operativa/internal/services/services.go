@@ -8,4 +8,5 @@ import (
 type Service interface {
 	Simplex(r requests.ProgramacionLinealRequest) (int, responses.SimplexResponse)
 	DosFases(r requests.ProgramacionLinealRequest) (int, responses.DosFasesResponse)
+	Transporte(r requests.TransporteRequest) (int, responses.TransporteResponse)
 }

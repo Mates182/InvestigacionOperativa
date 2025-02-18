@@ -9,3 +9,11 @@ func PromptProgramacionLineal() string {
 	- Evaluación de si es necesario aumentar o disminuir alguna restricción y la justificación de esta modificación.
 	`
 }
+func PromptTransporte() string {
+	return `Realiza un análisis de sensibilidad utilizando los siguientes datos del problema de transporte. Incluye:
+	- Listado de asignaciones con su interpretación en términos de oferta y demanda, si no hay enunciado del problema interpreta solo como datos
+	- Análisis del costo total del transporte y su impacto en la eficiencia del sistema logístico.
+	- Si existen origenes o destinos ficticios explica el por que
+	- No incluyas tablas
+	`
+}

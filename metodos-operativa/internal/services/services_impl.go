@@ -6,6 +6,7 @@ import (
 	"metodos-operativa/internal/data/requests"
 	"metodos-operativa/internal/data/responses"
 	"metodos-operativa/pkg/programacion_lineal"
+	"metodos-operativa/pkg/transporte"
 	"metodos-operativa/pkg/utils"
 )
 
@@ -209,4 +210,56 @@ func (s *Services) Simplex(r requests.ProgramacionLinealRequest) (int, responses
 	respuestas := utils.Resultados(resolucion[len(resolucion)-1], numRestricciones)
 	// Retornar la solución óptima
 	return 0, responses.SimplexResponse{Message: "Solución óptima encontrada", Resolucion: resolucion, Metodo: "simplex", Modelo: modelo, Respuestas: respuestas}
+}
+
+func (s *Services) Transporte(r requests.TransporteRequest) (int, responses.TransporteResponse) {
+	datos := r.Costos
+
+	origenes := r.Origenes
+	destinos := r.Destinos
+	diferencia := func() float64 {
+		var sumaOferta, sumaDemanda float64
+		for _, origen := range r.Origenes {
+			sumaOferta += origen.Oferta
+		}
+		for _, destino := range r.Destinos {
+			sumaDemanda += destino.Demanda
+		}
+		return sumaOferta - sumaDemanda
+	}()
+	if diferencia > 0 {
+		datos = utils.Map(datos, func(costosOrigen []float64, i int) []float64 {
+			return append(costosOrigen, 0)
+		})
+		destinos = append(destinos, requests.Destino{Demanda: diferencia, Destino: "Destino Ficticio"})
+	} else if diferencia < 0 {
+		datos = append(datos, utils.Map(datos[0], func(costoDestino float64, i int) float64 {
+			return 0
+		}))
+		origenes = append(origenes, requests.Origen{Oferta: -diferencia, Origen: "Origen Ficticio"})
+	} else {
+		fmt.Println("No hay diferencia")
+	}
+
+	//vogel
+	ofertas := utils.Map(origenes, func(origen requests.Origen, i int) float64 {
+		return origen.Oferta
+	})
+	demandas := utils.Map(destinos, func(destino requests.Destino, i int) float64 {
+		return destino.Demanda
+	})
+
+	datosTemp := utils.CopiarMatriz(datos)
+	asignacion := transporte.Vogel(datosTemp, ofertas, demandas)
+	costoTotal := transporte.CalcularCostoTotal(datos, asignacion)
+	newReq := requests.TransporteRequest{
+		Costos:   datos,
+		Origenes: origenes,
+		Destinos: destinos,
+	}
+
+	analisis := transporte.FormatearAsignacion(newReq, asignacion, costoTotal)
+
+	// Retornar la solución óptima
+	return 0, responses.TransporteResponse{Message: "Solución óptima encontrada", Request: newReq, Asignacion: asignacion, CostoTotal: costoTotal, Analisis: analisis}
 }
