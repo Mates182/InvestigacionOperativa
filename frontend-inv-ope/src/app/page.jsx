@@ -5,7 +5,7 @@ function Home() {
   return (
     <div>
       <h1>Optimizacion de problemas de Invesitgacion Operativa</h1>
-      <Link href={'/programacion-lineal'} className='btn btn-success'>xd</Link>
+      <h5>Bienvenido :D</h5>
     </div>
   )
 }

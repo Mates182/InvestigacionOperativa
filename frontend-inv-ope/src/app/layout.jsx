@@ -29,14 +29,32 @@ export default function RootLayout({ children }) {
             <a className="navbar-brand" href="/">
               Optimizador-IO
             </a>
-            <ul className="navbar-nav">
-              <li className="nav-item">
+            <ul className="navbar-nav d-flex flex-row">
+              <li className="nav-item ms-4">
                 <a
                   className="nav-link active"
                   aria-current="page"
                   href="/programacion-lineal"
                 >
                   Programación Lineal
+                </a>
+              </li>
+              <li className="nav-item ms-4">
+                <a
+                  className="nav-link active"
+                  aria-current="page"
+                  href="/transporte"
+                >
+                  Transporte
+                </a>
+              </li>
+              <li className="nav-item ms-4">
+                <a
+                  className="nav-link active"
+                  aria-current="page"
+                  href="/grafos"
+                >
+                  Grafos
                 </a>
               </li>
             </ul>
