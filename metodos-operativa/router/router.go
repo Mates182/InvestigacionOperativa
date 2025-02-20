@@ -18,6 +18,7 @@ func SetRouter() *gin.Engine {
 	r.Use(cors.GetCORSConfig())
 	r.POST("/simplex", controllers.NewProgramacionLinealController(services.NewServices()).ResolverProgramacionLineal)
 	r.POST("/transporte", controllers.NewTransporteController(services.NewServices()).ResolverTransporte)
+	r.POST("/grafos", controllers.NewGrafosController(services.NewServices()).ResolverGrafo)
 	r.POST("/analisispl", GenerarAnalisisPL)
 	r.POST("/analisistransporte", GenerarAnalisisTransporte)
 	r.GET("/ping", func(c *gin.Context) {

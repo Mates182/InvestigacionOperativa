@@ -20,7 +20,6 @@ func NewTransporteController(service services.Service) *TransporteController {
 
 func (ctrl *TransporteController) ResolverTransporte(c *gin.Context) {
 	var request requests.TransporteRequest
-
 	// Manejar error al parsear JSON
 	if err := c.BindJSON(&request); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"Message": "Error: No se han proporcionado datos válidos"})
