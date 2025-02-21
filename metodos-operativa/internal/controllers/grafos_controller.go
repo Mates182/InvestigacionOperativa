@@ -38,23 +38,20 @@ func (ctrl *GrafosController) ResolverGrafo(c *gin.Context) {
 		grafo.AgregarConexion(conexion.Origen, conexion.Destino, conexion.Costo, conexion.Capacidad, conexion.Distancia)
 	}
 
-	// Calcular la ruta más corta optimizando por Costo
-	costoTotal, rutaCosto := grafos.DijkstraGrafo(grafo, request.Origen, request.Destino, true)
-	fmt.Printf("Ruta más corta basada en Costo: %f\n", costoTotal)
-	rutaCosto.Mostrar()
+	if request.EsRutaCorta {
+		// Calcular la ruta más corta optimizando por Distancia
+		distanciaTotal, rutaDistancia := grafos.DijkstraGrafo(grafo, request.Origen, request.Destino, false)
+		fmt.Printf("Ruta más corta basada en Distancia: %f\n", distanciaTotal)
+		//rutaDistancia.Mostrar()
+		c.IndentedJSON(0, &responses.RutaMasCortaResponse{DistanciaMinima: distanciaTotal, GrafoDistancia: *rutaDistancia, Mensaje: "Solución óptima encontrada"})
+	} else {
+		// Aplicar Ford-Fulkerson
+		flujoMaximo, flujoGrafo := grafos.FordFulkersonGrafo(grafo, request.Origen, request.Destino)
+		fmt.Printf("Flujo Máximo: %.2f\n", flujoMaximo)
 
-	// Calcular la ruta más corta optimizando por Distancia
-	distanciaTotal, rutaDistancia := grafos.DijkstraGrafo(grafo, request.Origen, request.Destino, false)
-	fmt.Printf("Ruta más corta basada en Distancia: %f\n", distanciaTotal)
-	rutaDistancia.Mostrar()
-
-	// Aplicar Ford-Fulkerson
-	flujoMaximo, flujoGrafo := grafos.FordFulkersonGrafo(grafo, request.Origen, request.Destino)
-	fmt.Printf("Flujo Máximo: %.2f\n", flujoMaximo)
-
-	// Mostrar la red de flujo obtenida
-	flujoGrafo.Mostrar()
-
+		// Mostrar la red de flujo obtenida
+		//flujoGrafo.Mostrar()
+		c.IndentedJSON(0, &responses.FlujoMaximoResponse{Flujo: flujoMaximo, GrafoFlujo: *flujoGrafo, Mensaje: "Solución óptima encontrada"})
+	}
 	//status, res := ctrl.Service.Transporte(request)
-	c.IndentedJSON(0, &responses.GrafosResponse{Flujo: flujoMaximo, DistanciaMinima: distanciaTotal, GrafoFlujo: *flujoGrafo, GrafoDistancia: *rutaDistancia})
 }

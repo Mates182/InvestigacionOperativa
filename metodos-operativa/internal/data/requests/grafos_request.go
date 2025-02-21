@@ -1,9 +1,10 @@
 package requests
 
 type GrafosRequest struct {
-	Conexiones []Conexion `json:"conexiones"`
-	Origen     string     `json:"origen"`
-	Destino    string     `json:"destino"`
+	Conexiones  []Conexion `json:"conexiones"`
+	Origen      string     `json:"origen"`
+	Destino     string     `json:"destino"`
+	EsRutaCorta bool       `json:"es_ruta_corta"`
 }
 
 type Conexion struct {

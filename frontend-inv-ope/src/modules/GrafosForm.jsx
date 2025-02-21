@@ -10,6 +10,7 @@ import ReactFlow, {
 } from "reactflow";
 import { MarkerType } from "@xyflow/react";
 import "reactflow/dist/style.css";
+import ReactMarkdown from "react-markdown";
 
 function GrafosForm() {
   const [numNodos, setNumNodos] = useState(2);
@@ -19,6 +20,11 @@ function GrafosForm() {
   ]);
   const [numConexiones, setNumConexiones] = useState(1);
   const [procesando, setProcesando] = useState(false);
+  const [message, setMessage] = useState("");
+  const [analisis, setAnalisis] = useState("");
+  const [resData, setData] = useState();
+  const [resultNodes, setResultNodes, onResultNodesChange] = useNodesState([]);
+  const [resultEdges, setResultEdges] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,8 +45,9 @@ function GrafosForm() {
     // Crear el cuerpo de la solicitud
     const requestBody = {
       conexiones: conexionesObj,
-      origen: nodos[0].data.label,
-      destino: nodos[nodos.length-1].data.label,
+      origen: nodos[parseInt(e.target.algorigen.value) - 1].data.label,
+      destino: nodos[parseInt(e.target.algdestino.value) - 1].data.label,
+      es_ruta_corta: e.target.algoritmo.value == "true",
     };
 
     try {
@@ -59,7 +66,35 @@ function GrafosForm() {
 
       const data = await response.json();
       console.log("Respuesta del servidor:", data);
-      // Manejar la respuesta del servidor según sea necesario
+      console.log(JSON.stringify(data));
+      const { mensaje } = data;
+      setMessage(mensaje);
+      setData(data);
+
+      // Procesar los datos recibidos para crear los nodos y conexiones del grafo resultante
+      const resultNodes = Object.keys(data.grafo.nodos).map((key, index) => ({
+        id: key,
+        data: { label: key },
+        position: { x: index * 100, y: index * 100 },
+      }));
+
+      const resultEdges = [];
+      Object.keys(data.grafo.nodos).forEach((key) => {
+        const salidas = data.grafo.nodos[key].salidas;
+        if (salidas) {
+          salidas.forEach((salida, idx) => {
+            resultEdges.push({
+              id: `e${key}-${salida.destino}-${idx}`,
+              source: key,
+              target: salida.destino,
+              label: `Costo: ${salida.costo}, Capacidad: ${salida.capacidad}, Distancia: ${salida.distancia}`,
+            });
+          });
+        }
+      });
+
+      setResultNodes(resultNodes);
+      setResultEdges(resultEdges);
     } catch (error) {
       console.error("Error al enviar los datos:", error);
       alert("Hubo un error al enviar los datos");
@@ -146,17 +181,12 @@ function GrafosForm() {
       { edge: newEdge, costo: 0, capacidad: 0, distancia: 0 },
     ];
     let tempEdges = [...edges, newEdge];
-    console.log(tempConexiones);
-    console.log(tempEdges);
     setConexiones(tempConexiones);
     setEdges(tempEdges);
   };
 
   const handleConexionChange = (e, i) => {
     let conexionesTemp = [...conexiones];
-    console.log(conexionesTemp);
-    console.log(i);
-    console.log(e.target.name);
     if (e.target.name === "costo") {
       conexionesTemp[i].costo = e.target.value;
     } else if (e.target.name === "capacidad") {
@@ -165,7 +195,6 @@ function GrafosForm() {
       conexionesTemp[i].distancia = e.target.value;
     } else if (e.target.name === "origen") {
       conexionesTemp[i].edge.source = `${e.target.value}`;
-      console.log(e.target.value);
     } else if (e.target.name === "destino") {
       conexionesTemp[i].edge.target = `${e.target.value}`;
     }
@@ -237,6 +266,52 @@ function GrafosForm() {
             </div>
           </div>
         ))}
+        <h4 className="card-title ">Algoritmo</h4>
+        <div className="input-group ">
+          <label htmlFor={`algoritmo`} className="input-group-text">
+            Algoritmo:
+          </label>
+          <select
+            className="form-select"
+            id={`algoritmo`}
+            defaultValue={true}
+            name="origen"
+          >
+            <option value={true}>Ruta más corta</option>
+            <option value={false}>Flujo máximo</option>
+          </select>
+          <label htmlFor={`algorigen`} className="input-group-text">
+            Nodo Origen:
+          </label>
+          <select
+            className="form-select"
+            id={`algorigen`}
+            defaultValue={nodos[0].id || ""}
+            name="origen"
+          >
+            {nodos.map((nodo, index) => (
+              <option key={index} value={nodo.id}>
+                {nodo.data.label}
+              </option>
+            ))}
+          </select>
+          <label htmlFor={`algdestino`} className="input-group-text">
+            Nodo Destino:
+          </label>
+          <select
+            className="form-select"
+            id={`algdestino`}
+            defaultValue={nodos[1].id || ""}
+            name="destino"
+          >
+            {nodos.map((nodo, index) => (
+              <option key={index} value={nodo.id}>
+                {nodo.data.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <h4 className="card-title ">Conexiones</h4>
         {Array.from({ length: numConexiones }).map((_, i) => (
           <div key={`conexion-${i}`}>
@@ -314,20 +389,63 @@ function GrafosForm() {
           <h5 className="mt-2">{procesando ? "Procesando..." : "Calcular"}</h5>
         </button>
       </form>
-      <div style={{ width: "100%", height: "500px" }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-        >
-          <MiniMap />
-          <Controls />
-          <Background />
-        </ReactFlow>
+      <div className="card border-info mb-3 ms-0 me-0">
+        <div className="card-header mt-0">Vista Previa del Grafo</div>
+        <div style={{ width: "100%", height: "500px" }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            fitView
+          >
+            <Controls />
+            <Background />
+          </ReactFlow>
+        </div>
       </div>
+
+      {message == "Solución óptima encontrada" && (
+        <>
+          <div className="card border-success mb-3 ms-0 me-0">
+            <div className="card-header mt-0">Solución óptima</div>
+            <div className="p-2">
+              {resData.distanciaMinima == undefined && (
+                <div className="card-header">Flujo Máximo: {resData.flujo}</div>
+              )}
+              {resData.flujo == undefined && (
+                <div className="card-header">
+                  Ruta más corta: {resData.distanciaMinima}
+                </div>
+              )}
+            </div>
+            <div>
+              <div style={{ width: "100%", height: "400px" }}>
+                <ReactFlow
+                  nodes={resultNodes}
+                  edges={resultEdges}
+                  fitView
+                  nodesDraggable={true}
+                  onNodesChange={onResultNodesChange}
+                >
+                  <Controls />
+                  <Background />
+                </ReactFlow>
+              </div>
+            </div>
+          </div>
+          <div className="card border-info mb-3">
+            <div className="card-header">Interpretación de Resultados</div>
+            <div className="card-body">
+              <h5 className="card-title">
+                Interpretación generada por Gemini:
+              </h5>
+              <ReactMarkdown className="card-text">{analisis}</ReactMarkdown>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
