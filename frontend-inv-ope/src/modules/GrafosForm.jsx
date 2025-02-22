@@ -25,6 +25,7 @@ function GrafosForm() {
   const [resData, setData] = useState();
   const [resultNodes, setResultNodes, onResultNodesChange] = useNodesState([]);
   const [resultEdges, setResultEdges] = useState([]);
+  const [analisisSensibilidad, setAnalisisSensibilidad] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -95,29 +96,33 @@ function GrafosForm() {
 
       setResultNodes(resultNodes);
       setResultEdges(resultEdges);
-
-      const prompt = {
-        content: `Enunciado: ${document.getElementById("content").value}
+      if (analisisSensibilidad) {
+        const prompt = {
+          content: `Enunciado: ${document.getElementById("content").value}
         Nodos: ${JSON.stringify(nodos)}
         Rutas: ${JSON.stringify(conexiones)}
         Respuestas: ${JSON.stringify(data)}
-        Rutas del flujo maximo con el flujo asignado en su capacidad: ${JSON.stringify(resultEdges)}
+        Rutas del flujo maximo con el flujo asignado en su capacidad: ${JSON.stringify(
+          resultEdges
+        )}
         
         `,
-      };
-      const responseGemini = await fetch(
-        "http://localhost:7000/analisisgrafos",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(prompt),
-        }
-      );
-      if (!responseGemini.ok) throw new Error("Error al procesar la solicitud");
-      const { Message } = await responseGemini.json();
-      setAnalisis(Message);
+        };
+        const responseGemini = await fetch(
+          "http://localhost:7000/analisisgrafos",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(prompt),
+          }
+        );
+        if (!responseGemini.ok)
+          throw new Error("Error al procesar la solicitud");
+        const { Message } = await responseGemini.json();
+        setAnalisis(Message);
+      }
     } catch (error) {
       console.error("Error al enviar los datos:", error);
       alert("Hubo un error al enviar los datos");
@@ -408,17 +413,36 @@ function GrafosForm() {
             </div>
           </div>
         ))}
+        <div className="card-header mt-0">Análisis de sensiblilidad</div>
         <div className="input-group">
-          <span className="input-group-text">
-            Enunciado del <br /> problema:
-          </span>
-          <textarea
-            placeholder="Ingrese el enunciado del problema (opcional)"
-            className="form-control"
-            aria-label="With textarea"
-            id="content"
-          ></textarea>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              value=""
+              id="flexCheckDefault"
+              onChange={(e) => {
+                setAnalisisSensibilidad(e.target.checked);
+              }}
+            />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+              Incluir análisis de sensibilidad
+            </label>
+          </div>
         </div>
+        {analisisSensibilidad && (
+          <div className="input-group">
+            <span className="input-group-text">
+              Enunciado del <br /> problema:
+            </span>
+            <textarea
+              placeholder="Ingrese el enunciado del problema (opcional)"
+              className="form-control"
+              aria-label="With textarea"
+              id="content"
+            ></textarea>
+          </div>
+        )}
         <button type="submit" disabled={procesando}>
           <h5 className="mt-2">{procesando ? "Procesando..." : "Calcular"}</h5>
         </button>
@@ -469,15 +493,17 @@ function GrafosForm() {
               </div>
             </div>
           </div>
-          <div className="card border-info mb-3">
-            <div className="card-header">Interpretación de Resultados</div>
-            <div className="card-body">
-              <h5 className="card-title">
-                Interpretación generada por Gemini:
-              </h5>
-              <ReactMarkdown className="card-text">{analisis}</ReactMarkdown>
+          {analisisSensibilidad && (
+            <div className="card border-info mb-3">
+              <div className="card-header">Interpretación de Resultados</div>
+              <div className="card-body">
+                <h5 className="card-title">
+                  Interpretación generada por Gemini:
+                </h5>
+                <ReactMarkdown className="card-text">{analisis}</ReactMarkdown>
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>
