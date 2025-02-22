@@ -95,6 +95,29 @@ function GrafosForm() {
 
       setResultNodes(resultNodes);
       setResultEdges(resultEdges);
+
+      const prompt = {
+        content: `Enunciado: ${document.getElementById("content").value}
+        Nodos: ${JSON.stringify(nodos)}
+        Rutas: ${JSON.stringify(conexiones)}
+        Respuestas: ${JSON.stringify(data)}
+        Rutas del flujo maximo con el flujo asignado en su capacidad: ${JSON.stringify(resultEdges)}
+        
+        `,
+      };
+      const responseGemini = await fetch(
+        "http://localhost:7000/analisisgrafos",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(prompt),
+        }
+      );
+      if (!responseGemini.ok) throw new Error("Error al procesar la solicitud");
+      const { Message } = await responseGemini.json();
+      setAnalisis(Message);
     } catch (error) {
       console.error("Error al enviar los datos:", error);
       alert("Hubo un error al enviar los datos");
@@ -385,6 +408,17 @@ function GrafosForm() {
             </div>
           </div>
         ))}
+        <div className="input-group">
+          <span className="input-group-text">
+            Enunciado del <br /> problema:
+          </span>
+          <textarea
+            placeholder="Ingrese el enunciado del problema (opcional)"
+            className="form-control"
+            aria-label="With textarea"
+            id="content"
+          ></textarea>
+        </div>
         <button type="submit" disabled={procesando}>
           <h5 className="mt-2">{procesando ? "Procesando..." : "Calcular"}</h5>
         </button>

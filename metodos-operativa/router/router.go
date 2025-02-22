@@ -21,6 +21,7 @@ func SetRouter() *gin.Engine {
 	r.POST("/grafos", controllers.NewGrafosController(services.NewServices()).ResolverGrafo)
 	r.POST("/analisispl", GenerarAnalisisPL)
 	r.POST("/analisistransporte", GenerarAnalisisTransporte)
+	r.POST("/analisisgrafos", GenerarAnalisisGrafos)
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -43,6 +44,7 @@ func GenerarAnalisisPL(c *gin.Context) {
 	// Enviar respuesta
 	c.IndentedJSON(http.StatusOK, gin.H{"Message": res})
 }
+
 func GenerarAnalisisTransporte(c *gin.Context) {
 	var request requests.PromptRequest
 
@@ -52,6 +54,21 @@ func GenerarAnalisisTransporte(c *gin.Context) {
 		return
 	}
 	prompt := messages.PromptTransporte() + request.Content
+
+	res := gemini.GenerarTexto(prompt)
+	// Enviar respuesta
+	c.IndentedJSON(http.StatusOK, gin.H{"Message": res})
+}
+
+func GenerarAnalisisGrafos(c *gin.Context) {
+	var request requests.PromptRequest
+
+	// Manejar error al parsear JSON
+	if err := c.BindJSON(&request); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"Message": "Error: No se han proporcionado datos válidos"})
+		return
+	}
+	prompt := messages.PromptGrafos() + request.Content
 
 	res := gemini.GenerarTexto(prompt)
 	// Enviar respuesta

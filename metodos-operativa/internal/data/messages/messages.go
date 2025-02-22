@@ -17,3 +17,13 @@ func PromptTransporte() string {
 	- No incluyas tablas
 	`
 }
+
+func PromptGrafos() string {
+	return `Realiza un análisis de sensibilidad utilizando los siguientes datos del problema de grafos. Incluye:
+	- Si no hay enunciado del problema interpreta solo como datos
+	- Si es flujoMamixo, explicar el flujo maximo, si es distancia mas corta explicar la distanciaMinima
+	- Listado de las rutas / ruta obtenidas, basado en los nodos del grafo en el json que contiene el grafo respuesta, 
+	- Análisis del costo total (calculalo en base a las respuestas) y su impacto en la eficiencia.
+	- No incluyas tablas
+	`
+}
