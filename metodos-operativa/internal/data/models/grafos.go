@@ -2,6 +2,7 @@ package models
 
 import "fmt"
 
+// Representa la ruta entre dos nodos con sus datos de costo, capacidad y distancia
 type Conexion struct {
 	Destino   string  `json:"destino"`   // Nodo destino
 	Costo     float64 `json:"costo"`     // Costo de la conexión

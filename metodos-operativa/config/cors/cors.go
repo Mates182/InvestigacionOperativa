@@ -5,24 +5,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetCORSConfig devuelve una configuración de CORS para la aplicación
 func GetCORSConfig() gin.HandlerFunc {
+	// Crear una nueva configuración de CORS
 	corsConfig := cors.New(cors.Config{
-		// Set to true to allow all origins (remove if you want to allow specific origins only)
-		AllowAllOrigins: true, 
+		// Permitir todos los orígenes (remover si se desean orígenes específicos)
+		AllowAllOrigins: true,
 
-		// Uncomment and modify the line below to allow specific origins instead of all
-		// AllowOrigins: []string{"http://localhost:80", "https://example.com"}, 
-
-		// Define allowed HTTP methods (adjust according to your API needs)
+		// Definir los métodos HTTP permitidos
 		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 
-		// Specify the allowed headers (remove or add headers as required by your application)
+		// Especificar los encabezados permitidos
 		AllowHeaders: []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 
-		// Set to true to allow credentials such as cookies or authorization headers
+		// Permitir credenciales como cookies o encabezados de autorización
 		AllowCredentials: true,
 	})
 
+	// Retornar la configuración de CORS
 	return corsConfig
 }
-
