@@ -26,9 +26,9 @@ function Simplex({ resoluciones }) {
                     <td>{j == 0 ? 1 : 0}</td>
 
                     {ecuacion.li.map((termino, k) => (
-                      <td key={k}>{termino.c}</td>
+                      <td key={k}>{Math.round(termino.c * 10000) / 10000}</td>
                     ))}
-                    <td>{ecuacion.ld}</td>
+                    <td>{Math.round(ecuacion.ld * 10000) / 10000}</td>
                   </tr>
                 ))}
               </tbody>

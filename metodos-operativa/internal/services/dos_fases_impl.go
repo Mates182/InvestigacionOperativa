@@ -162,6 +162,15 @@ func (s *Services) DosFases(r requests.ProgramacionLinealRequest) (int, response
 	var modelo []string
 	modelo = append(modelo, modeloFuncionObjetivo)
 	modelo = append(modelo, modeloRestricciones)
+	if !r.Maximizar {
+		for _, iteracion := range resolucionFase2 {
+			iteracion.Ecuaciones[0].LD = iteracion.Ecuaciones[0].LD * -1
+			/*for i, termino := range iteracion.Ecuaciones[0].LI {
+				iteracion.Ecuaciones[0].LI[i].C = termino.C * -1
+			}*/
+		}
+
+	}
 
 	// Obtener los resultados finales
 	respuestas := utils.Resultados(resolucionFase2[len(resolucionFase2)-1], restriccionesLen)

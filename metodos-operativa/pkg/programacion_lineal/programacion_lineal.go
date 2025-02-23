@@ -1,6 +1,8 @@
 package programacion_lineal
 
 import (
+	"fmt"
+	"math"
 	"metodos-operativa/internal/data/models"
 	"metodos-operativa/internal/data/requests"
 	"metodos-operativa/pkg/utils"
@@ -67,11 +69,13 @@ func ResolverTablaSimplex(tabla models.TablaSimplex) (bool, models.TablaSimplex)
 
 	// Buscar el coeficiente más negativo en la fila de la función objetivo
 	for i, termino := range tabla.Ecuaciones[0].LI {
-		if termino.C < variableEntrante {
+		if (math.Trunc(termino.C*100000000) / 100000000) < variableEntrante {
 			variableEntrante = termino.C
 			indiceVariableEntrante = i
 		}
 	}
+
+	fmt.Println(variableEntrante)
 
 	// Si no se encuentra un coeficiente negativo, hemos alcanzado la solución óptima
 	if indiceVariableEntrante == -1 {
