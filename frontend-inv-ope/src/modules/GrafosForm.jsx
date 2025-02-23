@@ -67,7 +67,7 @@ function GrafosForm() {
 
       const data = await response.json();
       console.log("Respuesta del servidor:", data);
-      console.log(JSON.stringify(data));
+      //console.log(JSON.stringify(data));
       const { mensaje } = data;
       setMessage(mensaje);
       setData(data);
@@ -83,16 +83,34 @@ function GrafosForm() {
       Object.keys(data.grafo.nodos).forEach((key) => {
         const salidas = data.grafo.nodos[key].salidas;
         if (salidas) {
-          salidas.forEach((salida, idx) => {
+          // Crear un objeto para contar las ocurrencias
+          const cuentaSalidas = {};
+      
+          // Iterar sobre el arreglo y contar las ocurrencias de cada valor en 'salida'
+          for (let i = 0; i < salidas.length; i++) {
+            const salida = salidas[i].destino;
+            if (cuentaSalidas[salida]) {
+              cuentaSalidas[salida].capacidad += salidas[i].capacidad; // Incrementar capacidad si ya existe en el objeto
+            } else {
+              cuentaSalidas[salida] = {capacidad: salidas[i].capacidad, distancia: salidas[i].distancia, costo: salidas[i].costo}; // Si no existe, inicializar con los valores
+            }
+          }
+      
+          console.log(cuentaSalidas);
+          console.log("----");
+      
+          // Usar Object.entries() para iterar sobre el objeto cuentaSalidas
+          Object.entries(cuentaSalidas).forEach(([destino, datos], idx) => {
             resultEdges.push({
-              id: `e${key}-${salida.destino}-${idx}`,
+              id: `e${key}-${destino}-${idx}`,
               source: key,
-              target: salida.destino,
-              label: `Costo: ${salida.costo}, Capacidad: ${salida.capacidad}, Distancia: ${salida.distancia}`,
+              target: destino,
+              label: `Costo: ${datos.costo}, Capacidad: ${datos.capacidad}, Distancia: ${datos.distancia}`,
             });
           });
         }
       });
+      
 
       setResultNodes(resultNodes);
       setResultEdges(resultEdges);

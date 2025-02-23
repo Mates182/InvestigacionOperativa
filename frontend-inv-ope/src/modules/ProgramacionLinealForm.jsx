@@ -194,6 +194,7 @@ function ProgramacionLinealForm() {
                       className="form-control"
                       id={`rest-${i}-coef-${j}`}
                       placeholder="Coeficiente"
+                      defaultValue={0}
                       required
                     />
                     <span className="input-group-text">x{j + 1}</span>
@@ -222,6 +223,7 @@ function ProgramacionLinealForm() {
                     step="any"
                     id={`rest-${i}-ld`}
                     placeholder="LD"
+                    defaultValue={0}
                     required
                   />
                 </div>

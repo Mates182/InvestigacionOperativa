@@ -162,6 +162,7 @@ function TransporteForm() {
                     <input
                       type="text"
                       id={`destino-${i + 1}`}
+                      defaultValue={`Destino ${i + 1}`}
                       placeholder={`Destino ${i + 1}`}
                       className="w-100"
                     />
@@ -178,6 +179,7 @@ function TransporteForm() {
                       type="text"
                       id={`origen-${i + 1}`}
                       placeholder={`Origen ${i + 1}`}
+                      defaultValue={`Origen ${i + 1}`}
                       className="w-100"
                     />
                   </th>
@@ -185,6 +187,8 @@ function TransporteForm() {
                     <td key={`origen-${i}-destino-${j}`}>
                       <input
                         type="number"
+                        step="any"
+                        defaultValue={0}
                         id={`origen-${i + 1}-destino-${j + 1}`}
                         placeholder="Costo"
                         className="w-100 form-control"
@@ -194,6 +198,8 @@ function TransporteForm() {
                   <td className="table-active">
                     <input
                       type="number"
+                      step="any"
+                      defaultValue={0}
                       id={`oferta-${i + 1}`}
                       placeholder="Oferta"
                       className="w-100 form-control"
@@ -207,6 +213,8 @@ function TransporteForm() {
                   <td key={`demanda-${i}`} className="table-active">
                     <input
                       type="number"
+                      step="any"
+                      defaultValue={0}
                       id={`demanda-${i + 1}`}
                       placeholder="Demanda"
                       className="w-100 form-control"
